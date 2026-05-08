@@ -1,4 +1,5 @@
 import { createFileRoute } from "@tanstack/react-router";
+import { useState, useEffect } from "react";
 import { PageShell } from "@/components/PageShell";
 import { SectionTitle } from "@/components/SectionTitle";
 import { Reveal } from "@/components/Reveal";
@@ -8,6 +9,7 @@ import member1 from "@/assets/member-1.jpeg";
 import member2 from "@/assets/member-2.jpeg";
 import member3 from "@/assets/member-3.jpeg";
 import member4 from "@/assets/member-4.png";
+import { getTeamMembers, TeamMember } from "@/lib/db";
 
 export const Route = createFileRoute("/about")({
   component: AboutPage,
@@ -44,6 +46,18 @@ function Initial({ name }: { name: string }) {
 }
 
 function AboutPage() {
+  const [customTeam, setCustomTeam] = useState<TeamMember[]>([]);
+
+  useEffect(() => {
+    getTeamMembers().then(setCustomTeam).catch(console.error);
+  }, []);
+
+  // Merge default team with custom team based on matching names
+  const displayTeam = team.map(defaultMember => {
+    const custom = customTeam.find(c => c.id === defaultMember.name.toLowerCase().replace(/\s+/g, '-'));
+    return custom ? custom : defaultMember;
+  });
+
   return (
     <PageShell>
       {/* Hero */}
@@ -117,13 +131,13 @@ function AboutPage() {
       <section className="mx-auto max-w-7xl px-6 py-28">
         <SectionTitle eyebrow="The Atelier" title="The hands behind the gold" subtitle="A devoted council of dreamers, planners & masters of celebration." />
         <div className="mt-20 grid gap-10 sm:grid-cols-2 lg:grid-cols-4">
-          {team.map((m, i) => (
+          {displayTeam.map((m, i) => (
             <Reveal key={m.name} delay={i * 60}>
               <div className="group text-center hover-lift">
                 <div className="relative mx-auto h-44 w-44">
                   <div className="absolute inset-0 rounded-full bg-gradient-gold blur-xl opacity-30 group-hover:opacity-70 transition-opacity duration-700" />
                   <div className="absolute inset-0 rounded-full border border-gold animate-spin-slow" style={{ borderStyle: "dashed" }} />
-                  <div className="absolute inset-2 rounded-full bg-gradient-soft overflow-hidden ring-gold-glow">
+                  <div className="absolute inset-2 rounded-full bg-gradient-soft overflow-hidden ring-gold-glow border-2 border-transparent group-hover:border-white transition-colors duration-500">
                     {m.img ? (
                       <img src={m.img} alt={m.name} className="h-full w-full object-cover" />
                     ) : (

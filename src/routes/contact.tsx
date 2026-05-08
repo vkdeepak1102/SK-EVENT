@@ -4,7 +4,7 @@ import { PageShell } from "@/components/PageShell";
 import { SectionTitle } from "@/components/SectionTitle";
 import { Reveal } from "@/components/Reveal";
 import villa from "@/assets/event-villa.jpg";
-import { Phone, Mail, MapPin, MessageCircle } from "lucide-react";
+import { Phone, Mail, MapPin, MessageCircle, Instagram, Youtube } from "lucide-react";
 import { saveContactMessage } from "@/lib/db";
 
 export const Route = createFileRoute("/contact")({
@@ -109,13 +109,19 @@ function ContactPage() {
                 ))}
               </div>
 
-              <div className="overflow-hidden rounded-3xl border border-border">
-                <iframe
-                  title="map"
-                  src="https://www.openstreetmap.org/export/embed.html?bbox=80.25%2C13.02%2C80.30%2C13.06&layer=mapnik"
-                  className="w-full h-64"
-                  loading="lazy"
-                />
+              <div className="rounded-3xl border border-border bg-card p-8 flex items-center justify-around">
+                <a href="https://instagram.com" target="_blank" rel="noreferrer" className="flex flex-col items-center gap-3 text-foreground/70 hover:text-gold transition-colors">
+                  <div className="grid h-14 w-14 place-items-center rounded-full bg-gradient-to-tr from-yellow-400 via-pink-500 to-purple-500 text-white shadow-soft hover-lift">
+                    <Instagram className="h-6 w-6" />
+                  </div>
+                  <span className="text-[10px] tracking-[0.2em] uppercase font-bold">Instagram</span>
+                </a>
+                <a href="https://youtube.com" target="_blank" rel="noreferrer" className="flex flex-col items-center gap-3 text-foreground/70 hover:text-gold transition-colors">
+                  <div className="grid h-14 w-14 place-items-center rounded-full bg-red-600 text-white shadow-soft hover-lift">
+                    <Youtube className="h-6 w-6" />
+                  </div>
+                  <span className="text-[10px] tracking-[0.2em] uppercase font-bold">YouTube</span>
+                </a>
               </div>
             </div>
           </Reveal>

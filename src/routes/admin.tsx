@@ -1,9 +1,9 @@
 import { createFileRoute } from "@tanstack/react-router";
 import { PageShell } from "@/components/PageShell";
 import { Reveal } from "@/components/Reveal";
-import { CalendarRange, Users, Image as ImageIcon, FileText, UploadCloud, Download, MessageSquare } from "lucide-react";
+import { CalendarRange, Users, Image as ImageIcon, FileText, UploadCloud, Download, MessageSquare, Trash2, Plus } from "lucide-react";
 import { useState, useRef, useEffect } from "react";
-import { saveUploadedImage, getContactMessages, ContactMessage } from "@/lib/db";
+import { saveUploadedImage, getContactMessages, ContactMessage, getUploadedImages, deleteUploadedImage, UploadedImage, saveTeamMember, getTeamMembers, deleteTeamMember, TeamMember } from "@/lib/db";
 
 export const Route = createFileRoute("/admin")({
   component: Admin,
@@ -31,11 +31,32 @@ function Admin() {
   const fileInput = useRef<HTMLInputElement>(null);
 
   const [messages, setMessages] = useState<ContactMessage[]>([]);
+  const [gallery, setGallery] = useState<UploadedImage[]>([]);
+  const [teamMembers, setTeamMembers] = useState<TeamMember[]>([]);
+
+  // Team Upload States
+  const [teamName, setTeamName] = useState("");
+  const [teamRole, setTeamRole] = useState("");
+  const [teamDesc, setTeamDesc] = useState("");
+  const teamFileInput = useRef<HTMLInputElement>(null);
+
+  const fetchData = async () => {
+    try {
+      const [msgs, imgs, team] = await Promise.all([
+        getContactMessages(),
+        getUploadedImages(),
+        getTeamMembers()
+      ]);
+      setMessages(msgs);
+      setGallery(imgs);
+      setTeamMembers(team);
+    } catch (e) {
+      console.error(e);
+    }
+  };
 
   useEffect(() => {
-    if (isAuthenticated) {
-      getContactMessages().then(setMessages).catch(console.error);
-    }
+    if (isAuthenticated) fetchData();
   }, [isAuthenticated]);
 
   const handleLogin = (e: React.FormEvent) => {
@@ -91,9 +112,50 @@ function Admin() {
       setUploading(false);
       alert("Image uploaded to gallery successfully!");
       if (fileInput.current) fileInput.current.value = "";
+      fetchData();
     };
     
     reader.readAsDataURL(file);
+  };
+
+  const handleTeamUpload = async (e: React.FormEvent) => {
+    e.preventDefault();
+    if (!teamFileInput.current?.files?.length) return;
+    
+    setUploading(true);
+    const file = teamFileInput.current.files[0];
+    const reader = new FileReader();
+    
+    reader.onloadend = async () => {
+      const base64String = reader.result as string;
+      await saveTeamMember({
+        id: teamName.toLowerCase().replace(/\s+/g, '-'), // Using name as ID for overriding defaults
+        name: teamName,
+        role: teamRole,
+        desc: teamDesc,
+        img: base64String,
+        timestamp: Date.now()
+      });
+      setUploading(false);
+      alert("Team member updated successfully!");
+      if (teamFileInput.current) teamFileInput.current.value = "";
+      setTeamName(""); setTeamRole(""); setTeamDesc("");
+      fetchData();
+    };
+    
+    reader.readAsDataURL(file);
+  };
+
+  const handleDeleteImage = async (id: string) => {
+    if (!confirm("Delete this image?")) return;
+    await deleteUploadedImage(id);
+    fetchData();
+  };
+
+  const handleDeleteTeam = async (id: string) => {
+    if (!confirm("Delete this custom team member?")) return;
+    await deleteTeamMember(id);
+    fetchData();
   };
 
   if (!isAuthenticated) {
@@ -239,6 +301,83 @@ function Admin() {
                 </tbody>
               </table>
             )}
+          </div>
+        </div>
+      </section>
+
+      <section className="mx-auto max-w-7xl px-6 mb-12">
+        <div className="rounded-3xl border border-border bg-card p-8">
+          <div className="flex items-center gap-3 border-b border-border pb-6">
+            <ImageIcon className="h-6 w-6 text-gold" />
+            <h3 className="font-display text-3xl">Manage Gallery</h3>
+          </div>
+          <div className="mt-8 grid gap-4 sm:grid-cols-3 lg:grid-cols-5">
+            {gallery.map(img => (
+              <div key={img.id} className="relative group rounded-xl overflow-hidden aspect-square border border-border">
+                <img src={img.src} className="w-full h-full object-cover" alt={img.cat} />
+                <div className="absolute inset-0 bg-black/60 opacity-0 group-hover:opacity-100 transition-opacity flex items-center justify-center">
+                  <button onClick={() => handleDeleteImage(img.id)} className="bg-red-500/80 text-white p-2 rounded-full hover:bg-red-500">
+                    <Trash2 className="h-5 w-5" />
+                  </button>
+                </div>
+                <div className="absolute bottom-2 left-2 bg-black/80 px-2 py-0.5 rounded text-[8px] text-gold uppercase">{img.cat}</div>
+              </div>
+            ))}
+            {gallery.length === 0 && <p className="text-muted-foreground text-sm font-serif col-span-full">No gallery images uploaded yet.</p>}
+          </div>
+        </div>
+      </section>
+
+      <section className="mx-auto max-w-7xl px-6 mb-12 grid gap-12 lg:grid-cols-2">
+        <div className="rounded-3xl border border-border bg-card p-8">
+          <div className="flex items-center gap-3 border-b border-border pb-6">
+            <Users className="h-6 w-6 text-gold" />
+            <h3 className="font-display text-3xl">Upload Team Member</h3>
+          </div>
+          <form onSubmit={handleTeamUpload} className="mt-8 grid gap-4">
+            <div>
+              <label className="text-[10px] tracking-[0.2em] uppercase text-muted-foreground">Full Name</label>
+              <input type="text" value={teamName} onChange={e => setTeamName(e.target.value)} required className="mt-1 w-full flex h-11 rounded-md border border-border bg-background px-3 py-2 text-sm text-foreground focus-visible:outline-none focus-visible:ring-1 focus-visible:ring-gold" />
+            </div>
+            <div>
+              <label className="text-[10px] tracking-[0.2em] uppercase text-muted-foreground">Role</label>
+              <input type="text" value={teamRole} onChange={e => setTeamRole(e.target.value)} required className="mt-1 w-full flex h-11 rounded-md border border-border bg-background px-3 py-2 text-sm text-foreground focus-visible:outline-none focus-visible:ring-1 focus-visible:ring-gold" />
+            </div>
+            <div>
+              <label className="text-[10px] tracking-[0.2em] uppercase text-muted-foreground">Description</label>
+              <textarea value={teamDesc} onChange={e => setTeamDesc(e.target.value)} required rows={2} className="mt-1 w-full flex rounded-md border border-border bg-background px-3 py-2 text-sm text-foreground focus-visible:outline-none focus-visible:ring-1 focus-visible:ring-gold" />
+            </div>
+            <div>
+              <label className="text-[10px] tracking-[0.2em] uppercase text-muted-foreground">Photo</label>
+              <input type="file" accept="image/*" ref={teamFileInput} required className="mt-1 w-full flex h-11 rounded-md border border-border bg-background px-3 py-2 text-sm text-foreground file:border-0 file:bg-transparent file:text-sm file:font-medium placeholder:text-muted-foreground focus-visible:outline-none focus-visible:ring-1 focus-visible:ring-gold" />
+            </div>
+            <button type="submit" disabled={uploading} className="shimmer mt-2 w-full rounded-md bg-gradient-gold px-5 py-3 text-[11px] font-bold tracking-[0.3em] uppercase text-background shadow-gold disabled:opacity-50">
+              {uploading ? "Uploading..." : "Save Member"}
+            </button>
+          </form>
+        </div>
+
+        <div className="rounded-3xl border border-border bg-card p-8">
+          <div className="flex items-center gap-3 border-b border-border pb-6">
+            <Users className="h-6 w-6 text-gold" />
+            <h3 className="font-display text-3xl">Custom Members</h3>
+          </div>
+          <div className="mt-8 space-y-4">
+            {teamMembers.map(m => (
+              <div key={m.id} className="flex items-center justify-between p-4 rounded-xl border border-border bg-background/50">
+                <div className="flex items-center gap-4">
+                  <img src={m.img} alt={m.name} className="h-12 w-12 rounded-full object-cover border border-gold/40" />
+                  <div>
+                    <div className="font-display text-lg leading-tight">{m.name}</div>
+                    <div className="text-[10px] tracking-[0.2em] uppercase text-gold">{m.role}</div>
+                  </div>
+                </div>
+                <button onClick={() => handleDeleteTeam(m.id)} className="text-red-500/70 hover:text-red-500 p-2">
+                  <Trash2 className="h-5 w-5" />
+                </button>
+              </div>
+            ))}
+            {teamMembers.length === 0 && <p className="text-muted-foreground text-sm font-serif">No custom team members. Default team is displayed.</p>}
           </div>
         </div>
       </section>
