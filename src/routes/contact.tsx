@@ -75,7 +75,7 @@ function ContactPage() {
                 <button type="submit" className="shimmer mt-2 w-full rounded-full bg-gradient-gold px-6 py-4 text-xs tracking-[0.35em] uppercase text-background shadow-gold">
                   {sent ? "✦ We'll be in touch ✦" : "Send Whisper"}
                 </button>
-                <a href="https://wa.me/919800000000" target="_blank" rel="noreferrer" className="inline-flex items-center justify-center gap-2 rounded-full border border-gold px-6 py-3 text-xs tracking-[0.3em] uppercase text-foreground hover:bg-gradient-gold hover:text-background transition-all">
+                <a href="https://wa.me/917904315874" target="_blank" rel="noreferrer" className="inline-flex items-center justify-center gap-2 rounded-full border border-gold px-6 py-3 text-xs tracking-[0.3em] uppercase text-foreground hover:bg-gradient-gold hover:text-background transition-all">
                   <MessageCircle className="h-4 w-4" /> WhatsApp the atelier
                 </a>
               </div>
@@ -95,8 +95,8 @@ function ContactPage() {
 
               <div className="rounded-3xl bg-card border border-border p-8 grid gap-5">
                 {[
-                  { I: Phone, l: "Call", v: "+91 98000 00000" },
-                  { I: Mail, l: "Write", v: "hello@skevents.in" },
+                  { I: Phone, l: "Call", v: "+91 79043 15874" },
+                  { I: Mail, l: "Write", v: "skeventsmanagement28@gmail.com" },
                   { I: MapPin, l: "Visit", v: "12, Boat Club Road, Chennai 600028" },
                 ].map((c) => (
                   <div key={c.l} className="flex items-start gap-4">
