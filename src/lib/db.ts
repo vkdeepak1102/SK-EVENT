@@ -1,6 +1,24 @@
+import { initializeApp } from "firebase/app";
+import { getFirestore, collection, doc, setDoc, getDocs, deleteDoc } from "firebase/firestore";
+import { getStorage, ref, uploadString, getDownloadURL, deleteObject } from "firebase/storage";
+
+const firebaseConfig = {
+  apiKey: "AIzaSyC4bj7jjPoUHfwxMkKLaqFhuzahyJf_jIo",
+  authDomain: "sk-events-527f7.firebaseapp.com",
+  projectId: "sk-events-527f7",
+  storageBucket: "sk-events-527f7.firebasestorage.app",
+  messagingSenderId: "141926637379",
+  appId: "1:141926637379:web:8ac58fb975f50214c0d9f6",
+  measurementId: "G-FRXJM4VP9X"
+};
+
+const app = initializeApp(firebaseConfig);
+const db = getFirestore(app);
+const storage = getStorage(app);
+
 export interface UploadedImage {
   id: string;
-  src: string; // Base64 encoded string
+  src: string; // Will store the Firebase Storage URL, or incoming base64
   cat: string;
   h: "tall" | "med" | "short";
   timestamp: number;
@@ -18,139 +36,66 @@ export interface ContactMessage {
 }
 
 export interface TeamMember {
-  id: string; // The role or a unique ID. We'll use name or id to identify.
+  id: string;
   name: string;
   role: string;
   desc: string;
-  img: string; // Base64
+  img: string; // Will store the Firebase Storage URL, or incoming base64
   timestamp: number;
 }
 
-const DB_NAME = "gilded-events-db";
-const STORE_NAME = "gallery-images";
-const CONTACT_STORE = "contact-messages";
-const TEAM_STORE = "team-members";
-const DB_VERSION = 3;
-
-export function initDB(): Promise<IDBDatabase> {
-  return new Promise((resolve, reject) => {
-    const request = indexedDB.open(DB_NAME, DB_VERSION);
-
-    request.onerror = () => reject(request.error);
-
-    request.onsuccess = () => resolve(request.result);
-
-    request.onupgradeneeded = (event) => {
-      const db = (event.target as IDBOpenDBRequest).result;
-      if (!db.objectStoreNames.contains(STORE_NAME)) {
-        db.createObjectStore(STORE_NAME, { keyPath: "id" });
-      }
-      if (!db.objectStoreNames.contains(CONTACT_STORE)) {
-        db.createObjectStore(CONTACT_STORE, { keyPath: "id" });
-      }
-      if (!db.objectStoreNames.contains(TEAM_STORE)) {
-        db.createObjectStore(TEAM_STORE, { keyPath: "id" });
-      }
-    };
-  });
-}
-
 export async function saveUploadedImage(image: UploadedImage): Promise<void> {
-  const db = await initDB();
-  return new Promise((resolve, reject) => {
-    const transaction = db.transaction(STORE_NAME, "readwrite");
-    const store = transaction.objectStore(STORE_NAME);
-    const request = store.put(image);
-
-    request.onsuccess = () => resolve();
-    request.onerror = () => reject(request.error);
-  });
+  const storageRef = ref(storage, `gallery/${image.id}`);
+  
+  if (image.src.startsWith('data:')) {
+    await uploadString(storageRef, image.src, 'data_url');
+    const downloadUrl = await getDownloadURL(storageRef);
+    image.src = downloadUrl;
+  }
+  
+  await setDoc(doc(db, "gallery", image.id), image);
 }
 
 export async function getUploadedImages(): Promise<UploadedImage[]> {
-  const db = await initDB();
-  return new Promise((resolve, reject) => {
-    const transaction = db.transaction(STORE_NAME, "readonly");
-    const store = transaction.objectStore(STORE_NAME);
-    const request = store.getAll();
-
-    request.onsuccess = () => {
-      const items = request.result as UploadedImage[];
-      items.sort((a, b) => b.timestamp - a.timestamp);
-      resolve(items);
-    };
-    request.onerror = () => reject(request.error);
-  });
-}
-
-export async function saveContactMessage(message: ContactMessage): Promise<void> {
-  const db = await initDB();
-  return new Promise((resolve, reject) => {
-    const transaction = db.transaction(CONTACT_STORE, "readwrite");
-    const store = transaction.objectStore(CONTACT_STORE);
-    const request = store.put(message);
-
-    request.onsuccess = () => resolve();
-    request.onerror = () => reject(request.error);
-  });
-}
-
-export async function getContactMessages(): Promise<ContactMessage[]> {
-  const db = await initDB();
-  return new Promise((resolve, reject) => {
-    const transaction = db.transaction(CONTACT_STORE, "readonly");
-    const store = transaction.objectStore(CONTACT_STORE);
-    const request = store.getAll();
-
-    request.onsuccess = () => {
-      const items = request.result as ContactMessage[];
-      items.sort((a, b) => b.timestamp - a.timestamp);
-      resolve(items);
-    };
-    request.onerror = () => reject(request.error);
-  });
+  const querySnapshot = await getDocs(collection(db, "gallery"));
+  const items = querySnapshot.docs.map(doc => doc.data() as UploadedImage);
+  return items.sort((a, b) => b.timestamp - a.timestamp);
 }
 
 export async function deleteUploadedImage(id: string): Promise<void> {
-  const db = await initDB();
-  return new Promise((resolve, reject) => {
-    const transaction = db.transaction(STORE_NAME, "readwrite");
-    const store = transaction.objectStore(STORE_NAME);
-    const request = store.delete(id);
-    request.onsuccess = () => resolve();
-    request.onerror = () => reject(request.error);
-  });
+  await deleteDoc(doc(db, "gallery", id));
+  await deleteObject(ref(storage, `gallery/${id}`)).catch(console.error);
+}
+
+export async function saveContactMessage(message: ContactMessage): Promise<void> {
+  await setDoc(doc(db, "messages", message.id), message);
+}
+
+export async function getContactMessages(): Promise<ContactMessage[]> {
+  const querySnapshot = await getDocs(collection(db, "messages"));
+  const items = querySnapshot.docs.map(doc => doc.data() as ContactMessage);
+  return items.sort((a, b) => b.timestamp - a.timestamp);
 }
 
 export async function saveTeamMember(member: TeamMember): Promise<void> {
-  const db = await initDB();
-  return new Promise((resolve, reject) => {
-    const transaction = db.transaction(TEAM_STORE, "readwrite");
-    const store = transaction.objectStore(TEAM_STORE);
-    const request = store.put(member);
-    request.onsuccess = () => resolve();
-    request.onerror = () => reject(request.error);
-  });
+  const storageRef = ref(storage, `team/${member.id}`);
+  
+  if (member.img.startsWith('data:')) {
+    await uploadString(storageRef, member.img, 'data_url');
+    const downloadUrl = await getDownloadURL(storageRef);
+    member.img = downloadUrl;
+  }
+  
+  await setDoc(doc(db, "team", member.id), member);
 }
 
 export async function getTeamMembers(): Promise<TeamMember[]> {
-  const db = await initDB();
-  return new Promise((resolve, reject) => {
-    const transaction = db.transaction(TEAM_STORE, "readonly");
-    const store = transaction.objectStore(TEAM_STORE);
-    const request = store.getAll();
-    request.onsuccess = () => resolve(request.result as TeamMember[]);
-    request.onerror = () => reject(request.error);
-  });
+  const querySnapshot = await getDocs(collection(db, "team"));
+  const items = querySnapshot.docs.map(doc => doc.data() as TeamMember);
+  return items.sort((a, b) => b.timestamp - a.timestamp);
 }
 
 export async function deleteTeamMember(id: string): Promise<void> {
-  const db = await initDB();
-  return new Promise((resolve, reject) => {
-    const transaction = db.transaction(TEAM_STORE, "readwrite");
-    const store = transaction.objectStore(TEAM_STORE);
-    const request = store.delete(id);
-    request.onsuccess = () => resolve();
-    request.onerror = () => reject(request.error);
-  });
+  await deleteDoc(doc(db, "team", id));
+  await deleteObject(ref(storage, `team/${id}`)).catch(console.error);
 }

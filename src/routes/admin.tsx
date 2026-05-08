@@ -96,8 +96,16 @@ function Admin() {
     e.preventDefault();
     if (!fileInput.current?.files?.length) return;
     
-    setUploading(true);
     const file = fileInput.current.files[0];
+    
+    // Check if file size is above 3MB (3 * 1024 * 1024 bytes)
+    if (file.size > 3145728) {
+      alert("Image size must be below 3MB. Please compress the image or select another one.");
+      if (fileInput.current) fileInput.current.value = "";
+      return;
+    }
+
+    setUploading(true);
     const reader = new FileReader();
     
     reader.onloadend = async () => {
@@ -122,8 +130,16 @@ function Admin() {
     e.preventDefault();
     if (!teamFileInput.current?.files?.length) return;
     
-    setUploading(true);
     const file = teamFileInput.current.files[0];
+
+    // Check if file size is above 3MB (3 * 1024 * 1024 bytes)
+    if (file.size > 3145728) {
+      alert("Image size must be below 3MB. Please compress the image or select another one.");
+      if (teamFileInput.current) teamFileInput.current.value = "";
+      return;
+    }
+
+    setUploading(true);
     const reader = new FileReader();
     
     reader.onloadend = async () => {
