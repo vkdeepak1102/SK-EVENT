@@ -4,6 +4,10 @@ import { SectionTitle } from "@/components/SectionTitle";
 import { Reveal } from "@/components/Reveal";
 import { Sparkles } from "@/components/Sparkles";
 import wedding from "@/assets/event-wedding.jpg";
+import member1 from "@/assets/member-1.jpeg";
+import member2 from "@/assets/member-2.jpeg";
+import member3 from "@/assets/member-3.jpeg";
+import member4 from "@/assets/member-4.png";
 
 export const Route = createFileRoute("/about")({
   component: AboutPage,
@@ -16,14 +20,22 @@ export const Route = createFileRoute("/about")({
 });
 
 const team = [
-  { name: "Shanmathi Vijayaragavan", role: "Managing Director", desc: "The visionary force composing every celebration with patience and grace." },
-  { name: "Deepak Raj", role: "Venue Manager", desc: "Architect of spaces — turning palaces and pavilions into living poetry." },
-  { name: "Padma", role: "Event Marketing Specialist", desc: "Storyteller in chief, weaving narratives that travel further than the night." },
-  { name: "Sugirtha Paul Ruban", role: "Trade Manager", desc: "Curates the finest artisans, fabrics and florals from across the world." },
+  { name: "Shanmathi Vijayaragavan", role: "Managing Director", desc: "The visionary force composing every celebration with patience and grace.", img: member3 },
+  { name: "Deepak Raj", role: "Venue Manager", desc: "Architect of spaces — turning palaces and pavilions into living poetry.", img: member1 },
+  { name: "Padma", role: "Event Marketing Specialist", desc: "Storyteller in chief, weaving narratives that travel further than the night.", img: member2 },
+  { name: "Sugirtha Paul Ruban", role: "Trade Manager", desc: "Curates the finest artisans, fabrics and florals from across the world.", img: member4 },
   { name: "Naveen Mariappan", role: "Co-Producer", desc: "The conductor of cinematic moments — lighting, sound, sequence, soul." },
   { name: "Rukhsana Mohammed Jafer Shaikh", role: "Goa Manager", desc: "Mistress of beach soirées, sunset weddings, and yacht reveries." },
   { name: "Vinitha Naresh Sahani", role: "Mumbai Manager", desc: "Champion of skyline glamour and celebrity-grade discretion." },
   { name: "Harsha Gopala Krishnan", role: "Chennai Manager", desc: "Guardian of southern elegance — temple traditions touched by gold." },
+];
+
+const sponsors = [
+  { name: "Royal Diamond Jewellers", img: wedding },
+  { name: "Velvet Decor Co.", img: member1 },
+  { name: "Golden Catering", img: member2 },
+  { name: "Lumina Lighting", img: member3 },
+  { name: "Prestige Luxury Rentals", img: member4 },
 ];
 
 function Initial({ name }: { name: string }) {
@@ -37,15 +49,15 @@ function AboutPage() {
       {/* Hero */}
       <section className="relative h-[60vh] min-h-[480px] overflow-hidden">
         <img src={wedding} alt="" className="absolute inset-0 h-full w-full object-cover" />
-        <div className="absolute inset-0 bg-background/70" />
+        <div className="absolute inset-0 bg-gradient-to-b from-black/55 via-black/35 to-black/65" />
         <Sparkles density={50} />
         <div className="relative z-10 mx-auto flex h-full max-w-4xl flex-col items-center justify-center px-6 text-center pt-24">
-          <Reveal><p className="text-[11px] tracking-[0.5em] uppercase text-foreground/70">Our Story</p></Reveal>
+          <Reveal><p className="text-[11px] tracking-[0.5em] uppercase text-white/90" style={{textShadow:'0 2px 8px rgba(0,0,0,0.8)'}}>Our Story</p></Reveal>
           <Reveal delay={120}>
-            <h1 className="mt-6 font-display text-6xl md:text-8xl"><span className="text-gradient-gold">A House</span> of Celebrations</h1>
+            <h1 className="mt-6 font-display text-6xl md:text-8xl text-white" style={{textShadow:'0 4px 20px rgba(0,0,0,0.7)'}}><span className="text-gradient-gold">A House</span> of Celebrations</h1>
           </Reveal>
           <Reveal delay={220}>
-            <p className="mt-6 font-serif text-xl italic text-foreground/80">Born of devotion. Built on detail. Dressed in gold.</p>
+            <p className="mt-6 font-serif text-xl italic text-white/90" style={{textShadow:'0 2px 12px rgba(0,0,0,0.8)'}}>Born of devotion. Built on detail. Dressed in gold.</p>
           </Reveal>
         </div>
       </section>
@@ -111,13 +123,38 @@ function AboutPage() {
                 <div className="relative mx-auto h-44 w-44">
                   <div className="absolute inset-0 rounded-full bg-gradient-gold blur-xl opacity-30 group-hover:opacity-70 transition-opacity duration-700" />
                   <div className="absolute inset-0 rounded-full border border-gold animate-spin-slow" style={{ borderStyle: "dashed" }} />
-                  <div className="absolute inset-2 rounded-full bg-gradient-soft grid place-items-center ring-gold-glow">
-                    <Initial name={m.name} />
+                  <div className="absolute inset-2 rounded-full bg-gradient-soft overflow-hidden ring-gold-glow">
+                    {m.img ? (
+                      <img src={m.img} alt={m.name} className="h-full w-full object-cover" />
+                    ) : (
+                      <div className="h-full w-full grid place-items-center">
+                        <Initial name={m.name} />
+                      </div>
+                    )}
                   </div>
                 </div>
                 <h4 className="mt-6 font-display text-xl leading-tight">{m.name}</h4>
                 <p className="mt-1 text-[10px] tracking-[0.35em] uppercase text-gold">{m.role}</p>
                 <p className="mt-3 font-serif text-sm text-muted-foreground italic px-2">{m.desc}</p>
+              </div>
+            </Reveal>
+          ))}
+        </div>
+      </section>
+
+      {/* SPONSORS */}
+      <section className="mx-auto max-w-7xl px-6 pb-28">
+        <SectionTitle eyebrow="Our Partners" title="The Sponsors" subtitle="Those who bring the gold to life." />
+        <div className="mt-16 flex flex-wrap justify-center gap-10">
+          {sponsors.map((s, i) => (
+            <Reveal key={s.name} delay={i * 80}>
+              <div className="group text-center hover-lift flex flex-col items-center w-[200px]">
+                <div className="relative h-32 w-32 overflow-hidden rounded-full border-2 border-gold/40">
+                  <img src={s.img} alt={s.name} className="h-full w-full object-cover transition-transform duration-700 group-hover:scale-110" />
+                  <div className="absolute inset-0 bg-gold/10 mix-blend-overlay opacity-0 group-hover:opacity-100 transition-opacity" />
+                </div>
+                <h4 className="mt-6 font-display text-lg leading-tight">{s.name}</h4>
+                <p className="mt-1 text-[10px] tracking-[0.3em] uppercase text-gold">Sponsor</p>
               </div>
             </Reveal>
           ))}

@@ -5,6 +5,7 @@ import { SectionTitle } from "@/components/SectionTitle";
 import { Reveal } from "@/components/Reveal";
 import villa from "@/assets/event-villa.jpg";
 import { Phone, Mail, MapPin, MessageCircle } from "lucide-react";
+import { saveContactMessage } from "@/lib/db";
 
 export const Route = createFileRoute("/contact")({
   component: ContactPage,
@@ -28,7 +29,22 @@ function ContactPage() {
         <div className="grid gap-10 lg:grid-cols-2">
           <Reveal>
             <form
-              onSubmit={(e) => { e.preventDefault(); setSent(true); }}
+              onSubmit={async (e) => { 
+                e.preventDefault(); 
+                const formData = new FormData(e.currentTarget);
+                await saveContactMessage({
+                  id: crypto.randomUUID(),
+                  name: formData.get("Your Name") as string,
+                  email: formData.get("Email") as string,
+                  phone: formData.get("Phone") as string,
+                  date: formData.get("Event Date") as string,
+                  type: formData.get("type") as string,
+                  message: formData.get("message") as string,
+                  timestamp: Date.now()
+                });
+                setSent(true); 
+                e.currentTarget.reset();
+              }}
               className="glass rounded-3xl p-8 md:p-12 border-gold/40"
             >
               <h3 className="font-display text-3xl">Plan your event</h3>
@@ -43,18 +59,18 @@ function ContactPage() {
                 ].map((f) => (
                   <label key={f.l} className="block">
                     <span className="text-[10px] tracking-[0.3em] uppercase text-foreground/70">{f.l}</span>
-                    <input type={f.t} required className="mt-2 w-full rounded-lg border border-border bg-background/60 px-4 py-3 font-serif text-base outline-none transition-all focus:border-gold focus:shadow-glow" />
+                    <input name={f.l} type={f.t} required className="mt-2 w-full rounded-lg border border-border bg-background/60 px-4 py-3 font-serif text-base outline-none transition-all focus:border-gold focus:shadow-glow" />
                   </label>
                 ))}
                 <label className="block">
                   <span className="text-[10px] tracking-[0.3em] uppercase text-foreground/70">Type of Event</span>
-                  <select className="mt-2 w-full rounded-lg border border-border bg-background/60 px-4 py-3 font-serif text-base outline-none focus:border-gold focus:shadow-glow">
+                  <select name="type" className="mt-2 w-full rounded-lg border border-border bg-background/60 px-4 py-3 font-serif text-base outline-none focus:border-gold focus:shadow-glow">
                     <option>Wedding</option><option>Birthday</option><option>Yacht Surprise</option><option>Celebrity Event</option><option>Corporate</option><option>Other</option>
                   </select>
                 </label>
                 <label className="block">
                   <span className="text-[10px] tracking-[0.3em] uppercase text-foreground/70">Tell us your dream</span>
-                  <textarea rows={4} className="mt-2 w-full rounded-lg border border-border bg-background/60 px-4 py-3 font-serif text-base outline-none focus:border-gold focus:shadow-glow" />
+                  <textarea name="message" rows={4} className="mt-2 w-full rounded-lg border border-border bg-background/60 px-4 py-3 font-serif text-base outline-none focus:border-gold focus:shadow-glow" />
                 </label>
                 <button type="submit" className="shimmer mt-2 w-full rounded-full bg-gradient-gold px-6 py-4 text-xs tracking-[0.35em] uppercase text-background shadow-gold">
                   {sent ? "✦ We'll be in touch ✦" : "Send Whisper"}

@@ -81,6 +81,7 @@
 
   /* Gradients & shadows */
   --gradient-gold: linear-gradient(135deg, oklch(0.86 0.15 92), oklch(0.78 0.13 85), oklch(0.7 0.11 70));
+  --gradient-navbar: linear-gradient(135deg, oklch(0.22 0.04 50 / 0.97), oklch(0.18 0.03 40 / 0.97));
   --gradient-soft: linear-gradient(180deg, oklch(0.985 0.01 60), oklch(0.95 0.03 70));
   --gradient-radial-glow: radial-gradient(circle at center, oklch(0.86 0.15 92 / 0.4), transparent 70%);
 
@@ -124,6 +125,11 @@
   }
 
   .bg-gradient-gold { background: var(--gradient-gold); }
+  .bg-navbar-dark {
+    background: var(--gradient-navbar);
+    backdrop-filter: blur(16px);
+    border: 1px solid oklch(0.78 0.13 85 / 0.5);
+  }
   .bg-gradient-soft { background: var(--gradient-soft); }
   .bg-radial-glow { background: var(--gradient-radial-glow); }
 

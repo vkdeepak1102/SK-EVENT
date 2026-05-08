@@ -11,6 +11,7 @@ import celeb from "@/assets/event-celebrity.jpg";
 import corp from "@/assets/event-corporate.jpg";
 import villa from "@/assets/event-villa.jpg";
 import { Heart, Cake, Anchor, Sparkles as SIcon, Building2, Gift, ArrowRight, Quote, Star } from "lucide-react";
+import skLogo from "@/assets/SK-LOGO.jpeg";
 
 export const Route = createFileRoute("/")({
   component: Index,
@@ -48,7 +49,7 @@ function Index() {
       {/* HERO */}
       <section className="relative h-[100svh] min-h-[720px] w-full overflow-hidden vignette">
         <img src={heroImg} alt="Luxury ballroom" className="absolute inset-0 h-full w-full object-cover" width={1920} height={1080} />
-        <div className="absolute inset-0 bg-gradient-to-b from-background/30 via-background/10 to-background/80" />
+        <div className="absolute inset-0 bg-gradient-to-b from-black/50 via-black/30 to-black/70" />
         <Sparkles density={90} />
 
         {/* Light rays */}
@@ -59,22 +60,22 @@ function Index() {
           <div className="relative mb-8 h-32 w-32 animate-fade-up">
             <div className="absolute inset-0 rounded-full border border-gold animate-spin-slow" style={{ borderStyle: "dashed" }} />
             <div className="absolute -inset-3 rounded-full border border-gold/40" />
-            <div className="absolute inset-2 rounded-full bg-background/60 backdrop-blur-md grid place-items-center animate-glow-pulse">
-              <span className="font-display text-4xl text-gradient-gold">SK</span>
+            <div className="absolute inset-2 rounded-full overflow-hidden animate-glow-pulse">
+              <img src={skLogo} alt="SK Events Logo" className="h-full w-full object-cover rounded-full" />
             </div>
           </div>
 
           <Reveal>
-            <p className="text-[11px] tracking-[0.55em] uppercase text-foreground/70">Est. Atelier of Celebrations</p>
+            <p className="text-[11px] tracking-[0.55em] uppercase text-white/90" style={{textShadow:'0 2px 8px rgba(0,0,0,0.8)'}}>Est. Atelier of Celebrations</p>
           </Reveal>
           <Reveal delay={100}>
-            <h1 className="mt-6 font-display text-6xl md:text-8xl lg:text-9xl leading-[0.95]">
+            <h1 className="mt-6 font-display text-6xl md:text-8xl lg:text-9xl leading-[0.95]" style={{textShadow:'0 4px 20px rgba(0,0,0,0.7)'}}>
               <span className="text-gradient-gold">SK Events</span>
-              <span className="block font-serif italic text-3xl md:text-4xl mt-3 text-foreground/85">& Management</span>
+              <span className="block font-serif italic text-3xl md:text-4xl mt-3 text-white" style={{textShadow:'0 2px 12px rgba(0,0,0,0.8)'}}>& Management</span>
             </h1>
           </Reveal>
           <Reveal delay={250}>
-            <p className="mt-8 max-w-xl font-serif text-xl md:text-2xl italic text-foreground/80">
+            <p className="mt-8 max-w-xl font-serif text-xl md:text-2xl italic text-white/95" style={{textShadow:'0 2px 12px rgba(0,0,0,0.8)'}}>
               Crafting unforgettable luxury experiences — where moments wear gold.
             </p>
           </Reveal>
@@ -89,7 +90,7 @@ function Index() {
             </div>
           </Reveal>
 
-          <div className="absolute bottom-10 left-1/2 -translate-x-1/2 text-[10px] tracking-[0.5em] uppercase text-foreground/60">scroll</div>
+          <div className="absolute bottom-10 left-1/2 -translate-x-1/2 text-[10px] tracking-[0.5em] uppercase text-white/80" style={{textShadow:'0 1px 6px rgba(0,0,0,0.8)'}}>scroll</div>
         </div>
       </section>
 
@@ -196,17 +197,21 @@ function Index() {
       </section>
 
       {/* GALLERY STRIP */}
-      <section className="py-20">
+      <section className="py-20 relative overflow-hidden">
         <div className="mx-auto max-w-7xl px-6 mb-10 flex items-end justify-between">
           <SectionTitle align="left" eyebrow="Atelier Diary" title="Captured in candlelight" />
           <Link to="/gallery" className="hidden md:inline text-xs tracking-[0.3em] uppercase border-b border-gold pb-1">View Gallery</Link>
         </div>
-        <div className="grid grid-cols-2 md:grid-cols-6 gap-2 px-2">
-          {[wedding, yacht, birthday, celeb, corp, villa].map((src, i) => (
-            <div key={i} className="img-zoom aspect-square overflow-hidden">
-              <img src={src} alt="" loading="lazy" className="h-full w-full object-cover" />
-            </div>
-          ))}
+        <div className="relative">
+          <div className="flex w-max marquee-track gap-2 px-2">
+            {[wedding, yacht, birthday, celeb, corp, villa, wedding, yacht, birthday, celeb, corp, villa].map((src, i) => (
+              <div key={i} className="img-zoom aspect-square h-[240px] md:h-[300px] overflow-hidden">
+                <img src={src} alt="" loading="lazy" className="h-full w-full object-cover" />
+              </div>
+            ))}
+          </div>
+          <div className="pointer-events-none absolute inset-y-0 left-0 w-32 bg-gradient-to-r from-background to-transparent" />
+          <div className="pointer-events-none absolute inset-y-0 right-0 w-32 bg-gradient-to-l from-background to-transparent" />
         </div>
       </section>
 
