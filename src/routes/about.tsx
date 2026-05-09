@@ -1,5 +1,4 @@
 import { createFileRoute } from "@tanstack/react-router";
-import { useState, useEffect } from "react";
 import { PageShell } from "@/components/PageShell";
 import { SectionTitle } from "@/components/SectionTitle";
 import { Reveal } from "@/components/Reveal";
@@ -9,7 +8,6 @@ import member1 from "@/assets/member-1.jpeg";
 import member2 from "@/assets/member-2.jpeg";
 import member3 from "@/assets/member-3.jpeg";
 import member4 from "@/assets/member-4.png";
-import { getTeamMembers, TeamMember } from "@/lib/db";
 
 export const Route = createFileRoute("/about")({
   component: AboutPage,
@@ -46,17 +44,7 @@ function Initial({ name }: { name: string }) {
 }
 
 function AboutPage() {
-  const [customTeam, setCustomTeam] = useState<TeamMember[]>([]);
-
-  useEffect(() => {
-    getTeamMembers().then(setCustomTeam).catch(console.error);
-  }, []);
-
-  // Merge default team with custom team based on matching names
-  const displayTeam = team.map(defaultMember => {
-    const custom = customTeam.find(c => c.id === defaultMember.name.toLowerCase().replace(/\s+/g, '-'));
-    return custom ? custom : defaultMember;
-  });
+  const displayTeam = team;
 
   return (
     <PageShell>

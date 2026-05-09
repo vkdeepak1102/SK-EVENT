@@ -1,6 +1,5 @@
 import { createFileRoute } from "@tanstack/react-router";
-import { useState, useEffect } from "react";
-import { getUploadedImages, UploadedImage } from "@/lib/db";
+import { useState } from "react";
 import { PageShell } from "@/components/PageShell";
 import { SectionTitle } from "@/components/SectionTitle";
 import { Reveal } from "@/components/Reveal";
@@ -45,14 +44,8 @@ const heightMap = { tall: "h-[460px]", med: "h-[340px]", short: "h-[260px]" } as
 function GalleryPage() {
   const [filter, setFilter] = useState("All");
   const [preview, setPreview] = useState<string | null>(null);
-  const [uploadedItems, setUploadedItems] = useState<UploadedImage[]>([]);
 
-  useEffect(() => {
-    getUploadedImages().then(setUploadedItems).catch(console.error);
-  }, []);
-
-  const allItems = [...uploadedItems, ...items];
-  const list = filter === "All" ? allItems : allItems.filter((i) => i.cat === filter);
+  const list = filter === "All" ? items : items.filter((i) => i.cat === filter);
 
   return (
     <PageShell>

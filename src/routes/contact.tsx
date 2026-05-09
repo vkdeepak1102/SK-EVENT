@@ -5,7 +5,6 @@ import { SectionTitle } from "@/components/SectionTitle";
 import { Reveal } from "@/components/Reveal";
 import villa from "@/assets/event-villa.jpg";
 import { Phone, Mail, MapPin, MessageCircle, Instagram, Youtube } from "lucide-react";
-import { saveContactMessage } from "@/lib/db";
 
 export const Route = createFileRoute("/contact")({
   component: ContactPage,
@@ -29,19 +28,8 @@ function ContactPage() {
         <div className="grid gap-10 lg:grid-cols-2">
           <Reveal>
             <form
-              onSubmit={async (e) => { 
+              onSubmit={(e) => { 
                 e.preventDefault(); 
-                const formData = new FormData(e.currentTarget);
-                await saveContactMessage({
-                  id: crypto.randomUUID(),
-                  name: formData.get("Your Name") as string,
-                  email: formData.get("Email") as string,
-                  phone: formData.get("Phone") as string,
-                  date: formData.get("Event Date") as string,
-                  type: formData.get("type") as string,
-                  message: formData.get("message") as string,
-                  timestamp: Date.now()
-                });
                 setSent(true); 
                 e.currentTarget.reset();
               }}
